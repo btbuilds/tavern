@@ -3,8 +3,7 @@ from textual.app import ComposeResult
 from textual.widgets import Input, Button, Label, Rule, ListView, ListItem, Checkbox, Select, TextArea
 from textual.containers import Vertical, Horizontal
 from panels.base_screen import BaseScreen
-from panels.popup import PopupScreen, PopupType
-from core.manager import SearchType
+from panels.popup import PopupScreen, PopupType, CustomerLookupScreen
 from core.models import Equipment
 
 class TicketScreen(BaseScreen):
@@ -103,6 +102,12 @@ class NewTicketScreen(BaseScreen):
         not_focusable = ["#lookup", "#add-equipment", "#remove-equipment"]
         for button in not_focusable:
             self.query_one(button, Button).can_focus = False
+    
+    @on(Button.Pressed, "#lookup")
+    def push_lookup_customer(self) -> None:
+        def set_code(customer_code):
+            self.query_one("#code-input", Input).value = customer_code
+        self.app.push_screen(CustomerLookupScreen(), set_code)
 
     @on(Button.Pressed, "#add-equipment")
     def handle_add_equipment(self) -> None:

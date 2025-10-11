@@ -1,0 +1,73 @@
+/* Customer Lookup Modal */
+CustomerLookupScreen {
+    align: center middle;
+}
+
+#search-customer-content {
+    width: 100;
+    height: auto;
+    max-height: 50;
+    border: round $primary;
+    background: $panel;
+    padding: 2;
+}
+
+/* Search section */
+#search-section {
+    width: 100%;
+    height: auto;
+    padding: 1;
+    margin-bottom: 2;
+    border: round $primary;
+    background: $surface;
+}
+
+#search-section Select {
+    width: 20%;
+    margin-right: 1;
+}
+
+#search-section Input {
+    width: 1fr;
+    margin-right: 1;
+}
+
+#search-section Button {
+    width: auto;
+    min-width: 12;
+}
+
+/* Results section */
+#results-section {
+    width: 100%;
+    height: auto;
+    padding: 1;
+    margin-bottom: 2;
+    border: round $primary;
+    background: $surface;
+}
+
+#results-section > Label {
+    text-style: bold;
+    color: $primary;
+    margin-bottom: 1;
+}
+
+#customer-results {
+    height: 20;
+    border: round $surface-darken-1;
+    background: $surface;
+}
+
+/* Action buttons */
+#bottom-btns {
+    width: 100%;
+    height: auto;
+    padding: 0 2;
+    margin-bottom: 1;
+}
+
+.bottom-btn {
+    width: 50%;
+    margin: 0 1;
+}
