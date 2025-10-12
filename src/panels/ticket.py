@@ -106,7 +106,8 @@ class NewTicketScreen(BaseScreen):
     @on(Button.Pressed, "#lookup")
     def push_lookup_customer(self) -> None:
         def set_code(customer_code):
-            self.query_one("#code-input", Input).value = customer_code
+            if customer_code:
+                self.query_one("#code-input", Input).value = customer_code
         self.app.push_screen(CustomerLookupScreen(), set_code)
 
     @on(Button.Pressed, "#add-equipment")

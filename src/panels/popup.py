@@ -57,15 +57,13 @@ class CustomerLookupScreen(ModalScreen):
             with Horizontal(id="bottom-btns"):
                 yield Button("Select Customer", id="select-btn", classes="bottom-btn", variant="success", disabled=True)
                 yield Button("Cancel", id="cancel-btn", classes="bottom-btn", variant="error")
-            
-        
-    
+
     def on_mount(self) -> None:
         self.current_customer_code = None
     
     @on(Button.Pressed, "#cancel-btn")
     def close_screen(self):
-        self.app.pop_screen()
+        self.dismiss("")
     
     def search_customers(self):
         """Search for customers that match query and load matches in to list"""
