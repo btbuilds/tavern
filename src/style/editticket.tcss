@@ -179,7 +179,7 @@
 }
 
 /* Action buttons */
-#create,
+#save,
 #cancel {
     width: 100%;
     margin: 1 0;
