@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from dataclasses import asdict, is_dataclass
 from enum import Enum
 from datetime import datetime
 from core.constants import DATA_DIR, FILE_MAP, COUNTER_FILE
@@ -10,6 +11,8 @@ class EnhancedJSONEncoder(json.JSONEncoder):
             return o.value
         if isinstance(o, datetime):
             return o.isoformat()
+        if is_dataclass(o):
+            return asdict(o) # type: ignore[arg-type]
         return super().default(o)
     
 def initialize_files():

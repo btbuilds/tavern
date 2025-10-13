@@ -1,8 +1,9 @@
-from core.models import Ticket, Customer, TicketNote, Technician
+from core.models import Ticket, Customer, TicketNote, Technician, Equipment
 from typing import Optional
 from dataclasses import asdict
 from core.storage import load_data, save_data
 from core.constants import COUNTER_FILE
+from core.utils import hydrate_ticket
 from enum import Enum
 import re
 
@@ -18,6 +19,7 @@ class SearchType(Enum):
     NAME = "name"
     PHONE = "phone"
     EMAIL = "email"
+    TICKET_NUMBER = "ticket_number"
 
 class CustomerManager:    
     def create_customer(self, 
@@ -91,7 +93,8 @@ class CustomerManager:
 
             if search_type == SearchType.PHONE:
                 cleaned_query = re.sub(r'\D', '', query_data) # Strips everything but digits
-                if field_value == cleaned_query:
+                cleaned_field = re.sub(r'\D', '', field_value) # Just in case it managed to get saved with symbols or something
+                if cleaned_field == cleaned_query:
                     results.append(Customer(**customer_dict))
             else:
                 if query_data.lower() in field_value.lower():
@@ -111,13 +114,20 @@ class CustomerManager:
             if customer_dict["code"] == code:
                 return customer_dict["id"]
     
+    def get_customer_code(self, id: str):
+        customer_dicts = load_data("customers")
+        for customer_dict in customer_dicts:
+            if customer_dict["id"] == id:
+                return customer_dict["code"]
+
+    
     def get_customer_tickets(self, customer_id: str):
         ticket_dicts = load_data("tickets")
         customer_tickets = []
 
         for ticket_dict in ticket_dicts:
             if ticket_dict["customer_id"] == customer_id:
-                customer_tickets.append(Ticket(**ticket_dict))
+                customer_tickets.append(hydrate_ticket(ticket_dict))
 
         return customer_tickets
 
@@ -160,6 +170,129 @@ class TicketManager:
 
         save_data("tickets", ticket_dicts)
         return ticket_number
+    
+    def update_ticket(self,
+                      id: str,
+                      customer_id: str,
+                      ticket_type: str,
+                      priority: str, 
+                      description: str, 
+                      equipment_list: list,
+                      contact_name: Optional[str] = "", 
+                      contact_phone: Optional[str] = ""):
+        ticket_dicts = load_data("tickets")
+        prio_int = int(priority)
+        cleaned_phone = ""
+        if contact_phone:
+            cleaned_phone = re.sub(r'\D', '', contact_phone) # Strips everything but digits
+        
+        for ticket_dict in ticket_dicts:
+            if ticket_dict["id"] == id:
+                ticket_dict["customer_id"] = customer_id
+                ticket_dict["ticket_type"] = ticket_type
+                ticket_dict["description"] = description
+                ticket_dict["equipment_list"] = equipment_list
+                ticket_dict["contact_name"] = contact_name
+                ticket_dict["contact_phone"] = cleaned_phone
+                save_data("tickets", ticket_dicts)
+                return  # Exit early after successful update
+    
+        # If we get here, the ID wasn't found
+        # Should not be possible with proper UI, just here in case
+        raise ValueError(f"Ticket with ID {id} not found")
+
+    def search_tickets(self, query_data, search_type: SearchType):
+        if not query_data:
+            return []
+        results = []
+        if search_type == SearchType.PHONE:
+            results = self.search_by_phone(query_data)
+        elif search_type == SearchType.CODE:
+            results = self.search_by_code(query_data)
+        elif search_type == SearchType.NAME:
+            results = self.search_by_name(query_data)
+        elif search_type == SearchType.TICKET_NUMBER:
+            results = self.search_by_ticket_number(query_data)
+        return results
+    
+    def search_by_phone(self, phone_number):
+        ticket_dicts = load_data("tickets")
+        customer_dicts = load_data("customers")
+        cleaned_query = re.sub(r'\D', '', phone_number) # Strips everything but digits
+        results = []
+        customer_ids = [] # customers that have this phone number
+
+        for customer_dict in customer_dicts:
+            field_value = customer_dict["phone"]
+            cleaned_field = re.sub(r'\D', '', field_value) # Just in case it managed to get saved with symbols or something
+            if cleaned_query and cleaned_field == cleaned_query: # Only match if query isn't empty
+                customer_ids.append(customer_dict["id"])
+
+        for ticket_dict in ticket_dicts:
+            field_value = ticket_dict["contact_phone"]
+            cleaned_field = re.sub(r'\D', '', field_value) # Just in case it managed to get saved with symbols or something
+            if cleaned_field == cleaned_query or ticket_dict["customer_id"] in customer_ids:
+                results.append(hydrate_ticket(ticket_dict))
+        return results
+    
+    def search_by_code(self, customer_code):
+        ticket_dicts = load_data("tickets")
+        customer_dicts = load_data("customers")
+        customer_id = ""
+        results = []
+
+        for customer_dict in customer_dicts:
+            if customer_dict["code"] == customer_code:
+                customer_id = customer_dict["id"]
+                break
+        else:
+            return []
+        for ticket_dict in ticket_dicts:
+            if ticket_dict["customer_id"] == customer_id:
+                results.append(hydrate_ticket(ticket_dict))
+        return results
+    
+    def search_by_name(self, customer_name):
+        ticket_dicts = load_data("tickets")
+        customer_dicts = load_data("customers")
+        customer_ids = []
+        results = []
+
+        for customer_dict in customer_dicts:
+            if customer_dict["name"] == customer_name:
+                customer_ids.append(customer_dict["id"])
+        
+        if not customer_ids:
+            return []
+        
+        for ticket_dict in ticket_dicts:
+            if ticket_dict["customer_id"] in customer_ids:
+                results.append(hydrate_ticket(ticket_dict))
+        return results
+    
+    def search_by_ticket_number(self, ticket_number):
+        ticket_dicts = load_data("tickets")
+
+        # Convert to int if it's a string
+        try:
+            ticket_num = int(ticket_number)
+        except (ValueError, TypeError):
+            return []
+        
+        for ticket_dict in ticket_dicts:
+            if ticket_dict["ticket_number"] == ticket_num:
+                return [hydrate_ticket(ticket_dict)]
+        else:
+            return []
+    
+    def search_by_id(self, id):
+        ticket_dicts = load_data("tickets")
+
+        for ticket_dict in ticket_dicts:
+            if ticket_dict["id"] == id:
+                return hydrate_ticket(ticket_dict)
+
+
     
     def add_time_entry(self, 
                        ticket_id: str, 
