@@ -22,7 +22,7 @@ Sidebar {
     dock: left;
     offset-x: -100%;
     background: $surface;
-    border-right: vkey $background;    
+    border-right: vkey $primary;    
     transition: offset 200ms;
    
     &.-visible {
