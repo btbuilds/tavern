@@ -190,6 +190,7 @@ class TicketManager:
             if ticket_dict["id"] == id:
                 ticket_dict["customer_id"] = customer_id
                 ticket_dict["ticket_type"] = ticket_type
+                ticket_dict["priority"] = prio_int
                 ticket_dict["description"] = description
                 ticket_dict["equipment_list"] = equipment_list
                 ticket_dict["contact_name"] = contact_name

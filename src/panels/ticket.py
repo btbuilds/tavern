@@ -314,6 +314,10 @@ class EditTicketScreen(BaseScreen):
         results_list.clear()
         query = self.query_one("#search-input", Input).value
         search_type = self.query_one("#search-type", Select).value
+
+        if str(search_type) == "Select.BLANK":
+            self.app.push_screen(PopupScreen(f"Error: Must select a search type.", PopupType.ERROR))
+            return 
         tickets = self.app.manager.tickets.search_tickets(query, SearchType(search_type))
 
         for ticket in tickets:
