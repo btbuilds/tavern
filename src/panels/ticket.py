@@ -5,6 +5,7 @@ from textual.containers import Vertical
 from panels.base_screen import BaseScreen
 from panels.newticket import NewTicketScreen
 from panels.editticket import EditTicketScreen
+from panels.notesentry import NotesEntryScreen
 
 class TicketScreen(BaseScreen):
     BINDINGS = [("escape", "app.pop_screen", "Close screen")]
@@ -15,8 +16,8 @@ class TicketScreen(BaseScreen):
         with Vertical(id="form-content"):
             yield Label("Tickets")
             yield Button("New Ticket", id="new", variant="primary")
-            yield Button("Edit Ticket", id="edit", variant="primary")
-            yield Button("Search Tickets", id="search", variant="primary")
+            yield Button("Edit/Search Tickets", id="edit", variant="primary")
+            yield Button("Notes Entry", id="notes", variant="primary")
     
     @on(Button.Pressed, "#new")
     def new_ticket(self):
@@ -28,7 +29,7 @@ class TicketScreen(BaseScreen):
         self.app.pop_screen()
         self.app.push_screen(EditTicketScreen())
 
-    @on(Button.Pressed, "#search")
+    @on(Button.Pressed, "#notes")
     def search_tickets(self):
         self.app.pop_screen()
-        # self.app.push_screen(SearchTicketScreen())
+        self.app.push_screen(NotesEntryScreen())
