@@ -75,6 +75,8 @@ class NotesEntryScreen(BaseScreen):
                 yield TextArea(placeholder="Problem Description...", id="problem-input")
                 yield Label("Equipment")
                 yield ListView(id="equipment-container")
+                yield Button("Enter Notes", id="enter", variant="primary")
+                yield Button("Cancel", id="cancel", variant="error")
     
     def on_mount(self) -> None:
         self.current_ticket_id = ""

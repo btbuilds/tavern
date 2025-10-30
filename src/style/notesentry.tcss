@@ -155,3 +155,10 @@
     padding: 1 2;
     margin-bottom: 2;
 }
+
+/* Action buttons */
+#enter,
+#cancel {
+    width: 100%;
+    margin: 1 0;
+}
