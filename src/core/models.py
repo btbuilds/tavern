@@ -37,8 +37,6 @@ class Equipment:
 @dataclass
 class TicketNote:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    ticket_id: str = ""
-    ticket_number: int = 0
     technician: str = ""
     date_created: datetime = field(default_factory=datetime.now)
     notes: str = ""

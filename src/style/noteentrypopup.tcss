@@ -1,0 +1,81 @@
+/* Note Entry Modal */
+NoteEntryPopup {
+    align: center middle;
+}
+
+#note-entry-section {
+    width: 100;
+    height: auto;
+    max-height: 60;
+    border: round $primary;
+    background: $panel;
+    padding: 2;
+}
+
+#note-entry-section > Label:first-child {
+    text-style: bold;
+    text-align: center;
+    color: $primary;
+    width: 100%;
+    margin-bottom: 1;
+}
+
+#note-entry-section Rule {
+    margin-bottom: 2;
+}
+
+/* Previous notes section */
+#previous-notes {
+    width: 100%;
+    height: 15;
+    border: round $primary;
+    background: $surface;
+    padding: 1;
+    margin-bottom: 2;
+}
+
+/* Note input */
+#notes-input {
+    width: 100%;
+    height: 15;
+    border: round $primary;
+    margin-bottom: 2;
+}
+
+/* Hours and mileage inputs */
+#text-boxes {
+    width: 100%;
+    height: auto;
+    margin-bottom: 2;
+}
+
+#hours-col,
+#mileage-col {
+    width: 50%;
+    height: auto;
+    padding: 0 1;
+}
+
+#hours-col > Label,
+#mileage-col > Label {
+    text-style: bold;
+    color: $text;
+    margin-bottom: 0;
+}
+
+#hours-input,
+#mileage-input {
+    width: 100%;
+}
+
+/* Action buttons */
+#buttons {
+    width: 100%;
+    height: auto;
+    padding: 0 1;
+}
+
+#buttons Button {
+    width: 50%;
+    margin: 0 1;
+}

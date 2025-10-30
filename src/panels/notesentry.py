@@ -3,8 +3,7 @@ from textual.app import ComposeResult
 from textual.widgets import Input, Button, Label, Rule, ListView, ListItem, Select, TextArea
 from textual.containers import Vertical, Horizontal, Container
 from panels.base_screen import BaseScreen
-from panels.popup import PopupScreen, PopupType
-from core.models import Equipment
+from panels.popup import PopupScreen, PopupType, NoteEntryPopup
 from core.manager import SearchType
 
 class NotesEntryScreen(BaseScreen):
@@ -75,8 +74,8 @@ class NotesEntryScreen(BaseScreen):
                 yield TextArea(placeholder="Problem Description...", id="problem-input")
                 yield Label("Equipment")
                 yield ListView(id="equipment-container")
-                yield Button("Enter Notes", id="enter", variant="primary")
-                yield Button("Cancel", id="cancel", variant="error")
+            yield Button("Enter Notes", id="enter", variant="primary")
+            yield Button("Cancel", id="cancel", variant="error")
     
     def on_mount(self) -> None:
         self.current_ticket_id = ""
@@ -142,6 +141,10 @@ class NotesEntryScreen(BaseScreen):
         self.query_one("#eq-model", Input).clear()
         self.query_one("#eq-serial", Input).clear()
         self.query_one("#eq-notes", Input).clear()
+    
+    @on(Button.Pressed, "#enter")
+    def push_note_entry_popup(self):
+        self.app.push_screen(NoteEntryPopup(self.current_ticket_id))
         
     @on(Button.Pressed, "#cancel")
     def close_screen(self):

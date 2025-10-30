@@ -297,19 +297,21 @@ class TicketManager:
     
     def add_time_entry(self, 
                        ticket_id: str, 
-                       ticket_number: int, 
                        technician: str, 
                        notes: str, 
-                       hours: float, 
-                       mileage: int):
+                       ticket_time: str, 
+                       mileage: str):
         ticket_dicts = load_data("tickets")
+        try:
+            hours = float(ticket_time)
+            miles = int(mileage)
+        except Exception as e:
+            raise ValueError(f"Invalid entry in hours or mileage. {e}")
 
-        ticket_note = TicketNote(ticket_id=ticket_id,
-                                 ticket_number=ticket_number,
-                                 technician=technician,
+        ticket_note = TicketNote(technician=technician,
                                  notes=notes,
                                  ticket_time=hours,
-                                 mileage=mileage)
+                                 mileage=miles)
         
         ticket = {}
 
@@ -403,6 +405,12 @@ class TechnicianManager:
         for tech_dict in tech_dicts:
             if tech_dict["id"] == id:
                 return Technician(**tech_dict)
+    
+    def get_technician_id(self, username: str):
+        tech_dicts = load_data("technicians")
+        for tech_dict in tech_dicts:
+            if tech_dict["username"] == username:
+                return tech_dict["id"]
     
     def award_xp(self, tech_id, xp_amount):
         # TODO: Update XP and handle leveling up

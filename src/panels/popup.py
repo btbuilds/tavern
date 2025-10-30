@@ -1,7 +1,7 @@
 from enum import Enum
 from textual import on
 from textual.app import ComposeResult
-from textual.widgets import Button, Label, Input, Select, ListView, ListItem
+from textual.widgets import Button, Label, Input, Select, ListView, ListItem, Rule, TextArea
 from textual.containers import Vertical, Horizontal
 from textual.screen import ModalScreen
 from core.manager import SearchType
@@ -97,3 +97,82 @@ class CustomerLookupScreen(ModalScreen):
     @on(Button.Pressed, "#select-btn")
     def return_customer(self):
         self.dismiss(self.current_customer_code)
+
+class NoteEntryPopup(ModalScreen):
+    CSS_PATH = "../style/noteentrypopup.tcss"
+
+    def __init__(self, ticket_id: str):
+        super().__init__()
+        self.ticket_id = ticket_id
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="note-entry-section"):
+            yield Label("Note Entry")
+            yield Rule(line_style="heavy")
+            yield Label("Previous Notes")
+            yield ListView(id="previous-notes")
+            yield Rule(line_style="heavy")
+            yield Label("Notes")
+            yield TextArea(placeholder="Notes...", id="notes-input")
+            with Horizontal(id="text-boxes"):
+                with Vertical(id="hours-col"):
+                    yield Label("Hours")
+                    yield Input(placeholder="Hours (example: 1.25)", type="number", id="hours-input")
+                with Vertical(id="mileage-col"):
+                    yield Label("Mileage")
+                    yield Input(placeholder="Mileage", type="integer", id="mileage-input")
+            with Horizontal(id="buttons"):
+                yield Button("Save Note", id="save", variant="primary", disabled=True)
+                yield Button("Cancel", id="cancel", variant="error")
+    
+    @on(Input.Changed)
+    @on(TextArea.Changed)
+    def check_valid(self) -> None:
+        if self.validate_notes_form():
+            self.query_one("#save", Button).disabled = False
+        else:
+            self.query_one("#save", Button).disabled = True
+
+    @on(Button.Pressed, "#cancel")
+    def close_screen(self):
+        self.dismiss("")
+    
+    @on(Button.Pressed, "#save")
+    def save_notes(self):
+        is_valid = self.validate_notes_form()
+        if not is_valid:
+            self.app.push_screen(PopupScreen("Please enter notes before saving.", PopupType.ERROR))
+            return
+        
+        data = self.gather_form_data()
+        if data:
+            try:
+                data["ticket_id"] = self.ticket_id
+                self.app.manager.tickets.add_time_entry(**data) # type: ignore[attr-defined]
+                self.app.push_screen(PopupScreen(f"Notes successfully entered!", PopupType.SUCCESS))
+            except Exception as e:
+                self.app.push_screen(PopupScreen(f"Error: {e}", PopupType.ERROR))
+
+    def gather_form_data(self) -> dict:
+        """Extract all form data into a dict"""
+        notes = self.query_one("#notes-input", TextArea).text
+        ticket_time = "0"
+        mileage = "0"
+        if self.query_one("#hours-input", Input).value:
+            ticket_time = self.query_one("#hours-input", Input).value
+        if self.query_one("#mileage-input", Input).value:
+            mileage = self.query_one("#mileage-input", Input).value
+        current_tech = self.app.current_technician.username # type: ignore[attr-defined]
+        tech_id = self.app.manager.technicians.get_technician_id(current_tech) # type: ignore[attr-defined]
+        
+        data = {"technician":tech_id,
+                "notes":notes,
+                "ticket_time":ticket_time,
+                "mileage":mileage}
+        return data
+    
+    def validate_notes_form(self):
+        if self.query_one("#notes-input", TextArea).text: # Mileage and Ticket Time are optional
+            return True
+        else:
+            return False
