@@ -345,6 +345,13 @@ class TicketManager:
             f.write(str(next_number))
         
         return next_number
+    
+    def get_ticket_notes(self, id):
+        ticket_dicts = load_data("tickets")
+
+        for ticket_dict in ticket_dicts:
+            if ticket_dict["id"] == id:
+                return ticket_dict["notes_list"]
 
 class TechnicianManager:
     def create_technician(self, 

@@ -1,4 +1,5 @@
 from enum import Enum
+from core.utils import format_date
 from textual import on
 from textual.app import ComposeResult
 from textual.widgets import Button, Label, Input, Select, ListView, ListItem, Rule, TextArea
@@ -125,6 +126,17 @@ class NoteEntryPopup(ModalScreen):
                 yield Button("Save Note", id="save", variant="primary", disabled=True)
                 yield Button("Cancel", id="cancel", variant="error")
     
+    def on_mount(self) -> None:
+        notes_list_view = self.query_one("#previous-notes", ListView)
+        notes_list = self.app.manager.tickets.get_ticket_notes(self.ticket_id) # type: ignore[attr-defined]
+        for note in notes_list:
+            formatted_date = format_date(note["date_created"])
+            if len(note["notes"]) > 80:
+                item = ListItem(Label(f"{formatted_date} - {note["notes"][:80]}..."))
+            else:
+                item = ListItem(Label(f"{formatted_date} - {note["notes"]}"))
+            notes_list_view.append(item)
+
     @on(Input.Changed)
     @on(TextArea.Changed)
     def check_valid(self) -> None:
