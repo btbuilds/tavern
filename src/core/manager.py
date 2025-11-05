@@ -153,11 +153,21 @@ class TicketManager:
         ticket_number = self.get_next_ticket_number()
         prio_int = int(priority)
         cleaned_phone = ""
+
+        tech_id = ""
+        tech_dicts = load_data("technicians")
+        for tech_dict in tech_dicts:
+            if tech_dict["username"] == created_by:
+                tech_id = tech_dict["id"]
+                break
+        if not tech_id:
+            raise ValueError("Technician ID not found.")
+        
         if contact_phone:
             cleaned_phone = re.sub(r'\D', '', contact_phone) # Strips everything but digits
 
         ticket = Ticket(ticket_number=ticket_number, 
-                        created_by=created_by, 
+                        created_by=tech_id, 
                         ticket_type=ticket_type,
                         priority=prio_int,
                         customer_id=customer_id,
