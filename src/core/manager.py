@@ -336,10 +336,6 @@ class TicketManager:
         ticket["notes_list"].append(asdict(ticket_note))
 
         save_data("tickets", ticket_dicts)
-    
-    def calculate_xp_for_completion(self, ticket):
-        # RPG XP logic
-        pass
 
     def get_next_ticket_number(self):
         try:
@@ -428,7 +424,3 @@ class TechnicianManager:
         for tech_dict in tech_dicts:
             if tech_dict["username"] == username:
                 return tech_dict["id"]
-    
-    def award_xp(self, tech_id, xp_amount):
-        # TODO: Update XP and handle leveling up
-        pass

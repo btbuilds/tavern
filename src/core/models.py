@@ -81,6 +81,3 @@ class Technician:
     email: str = ""
 
     is_active: bool = True
-    # Gamification fields
-    level: int = 1
-    xp: int = 0
